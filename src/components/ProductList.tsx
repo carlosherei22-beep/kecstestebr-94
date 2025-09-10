@@ -44,7 +44,8 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
           *,
           categories!inner(name, slug)
         `)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(20);
 
       // Apply category filter
       if (selectedCategory && selectedCategory !== 'all') {
@@ -68,7 +69,8 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
         const { data: simpleData, error: simpleError } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(20);
           
         if (simpleError) {
           console.error('❌ Simple query also failed:', simpleError.message);
@@ -90,7 +92,8 @@ const ProductList = ({ searchTerm, selectedCategory }: ProductListProps) => {
         const { data: fallbackData } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(20);
         console.log('✅ Fallback query success:', fallbackData?.length || 0);
         setProducts(fallbackData || []);
       } catch (fallbackError) {

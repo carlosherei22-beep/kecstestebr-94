@@ -48,6 +48,20 @@ const ProductDetailPage = () => {
     }
   }, [id]);
 
+  // Scroll automático para o conteúdo do produto
+  useEffect(() => {
+    if (!loading && product) {
+      // Scroll para a seção da imagem do produto
+      const productSection = document.querySelector('.grid.md\\:grid-cols-2');
+      if (productSection) {
+        productSection.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }
+    }
+  }, [loading, product]);
+
   const fetchProduct = async (productId: string) => {
     try {
       setLoading(true);

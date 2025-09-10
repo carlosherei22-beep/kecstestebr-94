@@ -19,6 +19,11 @@ const ProductsPage = () => {
   // Get search and category from URL params
   const searchTerm = searchParams.get('search') || '';
   const selectedCategory = searchParams.get('categoria') || 'all';
+
+  // Scroll to top when page loads
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   const handleSearchChange = (term: string) => {
     const params = new URLSearchParams(searchParams);

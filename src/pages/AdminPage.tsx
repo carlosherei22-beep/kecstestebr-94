@@ -5,23 +5,33 @@ import AdminDashboard from '@/components/Admin/AdminDashboard';
 
 const AdminPage = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, loading } = useAuth();
 
   useEffect(() => {
-    // Verifica se o usuário está logado e é admin
+    // Aguarda o carregamento dos dados
+    if (loading) return;
+    
+    // Verifica se o usuário está logado
     if (!user) {
       navigate('/auth');
       return;
     }
     
+    // Verifica se tem profile e se é admin
     if (profile && !profile.is_admin) {
       navigate('/');
       return;
     }
-  }, [user, profile, navigate]);
+    
+    // Se não tem profile ainda, também bloqueia (significa que não é admin)
+    if (!profile) {
+      navigate('/');
+      return;
+    }
+  }, [user, profile, loading, navigate]);
 
-  // Só renderiza se o usuário é admin
-  if (!user || (profile && !profile.is_admin)) {
+  // Mostra loading enquanto carrega ou se não é admin
+  if (loading || !user || !profile || !profile.is_admin) {
     return null;
   }
 

@@ -14,14 +14,25 @@ interface Message {
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Olá! Sou o KecBot, como posso ajudá-lo hoje?',
-      isUser: false,
-      timestamp: new Date()
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Carrega mensagens do localStorage
+    const saved = localStorage.getItem('chatbot-messages');
+    if (saved) {
+      const parsedMessages = JSON.parse(saved);
+      return parsedMessages.map((msg: any) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      }));
     }
-  ]);
+    return [
+      {
+        id: '1',
+        text: 'Olá! Sou o KecBot, como posso ajudá-lo hoje?',
+        isUser: false,
+        timestamp: new Date()
+      }
+    ];
+  });
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
@@ -33,6 +44,8 @@ const ChatBot = () => {
 
   useEffect(() => {
     scrollToBottom();
+    // Salva mensagens no localStorage
+    localStorage.setItem('chatbot-messages', JSON.stringify(messages));
   }, [messages]);
 
   // Notificação automática após 10 segundos

@@ -225,7 +225,7 @@ const FeaturedProducts = () => {
               onClick={() => navigate('/produtos')}
               className="bg-gradient-primary hover:opacity-90 font-semibold px-8 h-12"
             >
-              Ver Todos os Produtos
+              Ver Produtos em Destaque
             </Button>
           </div>
         )}

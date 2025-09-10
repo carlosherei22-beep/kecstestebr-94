@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
-import HeroSection from '@/components/HeroSection';
 import Footer from '@/components/Footer';
 import CategoriesSection from '@/components/CategoriesSection';
 import FeaturedProducts from '@/components/FeaturedProducts';
@@ -42,7 +41,6 @@ const Index = () => {
       />
       
       {/* Home page with all sections */}
-      <HeroSection />
       <BannerCarousel />
       <FeaturedProducts />
       <CategoriesSection onCategorySelect={handleCategoryChange} />

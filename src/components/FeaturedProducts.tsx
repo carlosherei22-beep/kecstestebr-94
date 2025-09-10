@@ -218,17 +218,25 @@ const FeaturedProducts = () => {
           ))}
         </div>
 
-        {/* Botão para carregar mais produtos em destaque */}
-        {hasMoreProducts && (
-          <div className="flex justify-center mt-8">
+        {/* Botões para carregar mais produtos ou ver todos */}
+        <div className="flex justify-center mt-8">
+          {hasMoreProducts ? (
             <Button 
               onClick={loadMoreProducts}
               className="bg-gradient-primary hover:opacity-90 font-semibold px-8 h-12"
             >
               Ver Mais Produtos em Destaque
             </Button>
-          </div>
-        )}
+          ) : (
+            <Button 
+              onClick={() => navigate('/produtos')}
+              variant="outline"
+              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold px-8 h-12"
+            >
+              Ver Todos os Produtos
+            </Button>
+          )}
+        </div>
       </div>
     </section>
   );

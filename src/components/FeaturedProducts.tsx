@@ -218,14 +218,14 @@ const FeaturedProducts = () => {
           ))}
         </div>
 
-        {/* Link para página de produtos - só mostra se há mais produtos */}
+        {/* Botão para carregar mais produtos em destaque */}
         {hasMoreProducts && (
           <div className="flex justify-center mt-8">
             <Button 
-              onClick={() => navigate('/produtos')}
+              onClick={loadMoreProducts}
               className="bg-gradient-primary hover:opacity-90 font-semibold px-8 h-12"
             >
-              Ver Produtos em Destaque
+              Ver Mais Produtos em Destaque
             </Button>
           </div>
         )}

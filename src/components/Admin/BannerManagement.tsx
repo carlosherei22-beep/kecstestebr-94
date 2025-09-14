@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Banner {
   id: string;
@@ -43,6 +44,16 @@ const BannerManagement = () => {
   });
 
   const { toast } = useToast();
+  const { user, profile } = useAuth();
+
+  useEffect(() => {
+    console.log('🔍 BannerManagement - Auth state:', { 
+      user: !!user, 
+      userId: user?.id,
+      profile: !!profile, 
+      isAdmin: profile?.is_admin 
+    });
+  }, [user, profile]);
 
   useEffect(() => {
     fetchBanners();
@@ -106,6 +117,9 @@ const BannerManagement = () => {
     e.preventDefault();
     setLoading(true);
 
+    console.log('🚀 Starting banner submission...', { editingBanner: !!editingBanner });
+    console.log('📝 Form data:', formData);
+
     try {
       const bannerData = {
         title: formData.title,
@@ -117,18 +131,29 @@ const BannerManagement = () => {
       };
 
       let error;
+      console.log('🔄 Executing database operation...', { isEdit: !!editingBanner });
+      
       if (editingBanner) {
+        console.log('✏️ Updating banner:', editingBanner.id);
         ({ error } = await supabase
           .from('banners')
           .update(bannerData)
           .eq('id', editingBanner.id));
       } else {
+        console.log('➕ Creating new banner...');
         ({ error } = await supabase
           .from('banners')
           .insert([bannerData]));
       }
 
-      if (error) throw error;
+      console.log('📋 Database operation result:', { error });
+
+      if (error) {
+        console.error('❌ Database error:', error);
+        throw error;
+      }
+
+      console.log('✅ Banner saved successfully!');
 
       toast({
         title: editingBanner ? "Banner atualizado!" : "Banner criado!",
@@ -139,6 +164,7 @@ const BannerManagement = () => {
       setIsOpen(false);
       resetForm();
     } catch (error: any) {
+      console.error('💥 Error in handleSubmit:', error);
       toast({
         title: "Erro",
         description: error.message || "Ocorreu um erro ao salvar o banner.",

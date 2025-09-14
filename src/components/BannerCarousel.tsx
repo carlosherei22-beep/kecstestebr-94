@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabasePublic as supabase } from '@/integrations/supabase/publicClient';
 import {
   Carousel,
@@ -14,6 +15,7 @@ interface Banner {
   title: string;
   image_url: string;
   link_url?: string;
+  category_id?: string;
   is_active: boolean;
   order_position: number;
 }
@@ -21,6 +23,7 @@ interface Banner {
 const BannerCarousel = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchBanners();
@@ -40,6 +43,32 @@ const BannerCarousel = () => {
       console.error('Error fetching banners:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBannerClick = async (banner: Banner) => {
+    if (banner.category_id) {
+      // Buscar o slug da categoria
+      try {
+        const { data: category, error } = await supabase
+          .from('categories')
+          .select('slug')
+          .eq('id', banner.category_id)
+          .single();
+
+        if (error) throw error;
+        
+        if (category) {
+          navigate(`/produtos?categoria=${category.slug}`);
+          return;
+        }
+      } catch (error) {
+        console.error('Error fetching category:', error);
+      }
+    }
+    
+    if (banner.link_url) {
+      window.open(banner.link_url, '_blank');
     }
   };
 
@@ -73,30 +102,19 @@ const BannerCarousel = () => {
         <CarouselContent>
           {banners.map((banner) => (
             <CarouselItem key={banner.id}>
-              <div className="relative h-80 md:h-96 w-full rounded-lg overflow-hidden bg-muted">
-                {banner.link_url ? (
-                  <a href={banner.link_url} target="_blank" rel="noopener noreferrer">
-                    <img
-                      src={banner.image_url}
-                      alt={banner.title}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 image-rendering-auto"
-                      style={{ 
-                        filter: 'contrast(1.1) saturate(1.1) brightness(1.05)',
-                      }}
-                      loading="eager"
-                    />
-                  </a>
-                ) : (
-                  <img
-                    src={banner.image_url}
-                    alt={banner.title}
-                    className="w-full h-full object-cover"
-                    style={{ 
-                      filter: 'contrast(1.1) saturate(1.1) brightness(1.05)',
-                    }}
-                    loading="eager"
-                  />
-                )}
+              <div 
+                className="relative h-80 md:h-96 w-full rounded-lg overflow-hidden bg-muted cursor-pointer"
+                onClick={() => handleBannerClick(banner)}
+              >
+                <img
+                  src={banner.image_url}
+                  alt={banner.title}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 image-rendering-auto"
+                  style={{ 
+                    filter: 'contrast(1.1) saturate(1.1) brightness(1.05)',
+                  }}
+                  loading="eager"
+                />
                 <div className="absolute inset-0 bg-black/20" />
                 <div className="absolute bottom-4 left-4 text-white">
                   <h3 className="text-xl font-bold">{banner.title}</h3>

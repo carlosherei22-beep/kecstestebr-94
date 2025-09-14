@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -15,12 +16,20 @@ interface Banner {
   title: string;
   image_url: string;
   link_url?: string;
+  category_id?: string;
   is_active: boolean;
   order_position: number;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 const BannerManagement = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
   const [loading, setLoading] = useState(false);
@@ -28,6 +37,7 @@ const BannerManagement = () => {
     title: '',
     image_url: '',
     link_url: '',
+    category_id: '',
     is_active: true,
     order_position: 0
   });
@@ -36,6 +46,7 @@ const BannerManagement = () => {
 
   useEffect(() => {
     fetchBanners();
+    fetchCategories();
   }, []);
 
   const fetchBanners = async () => {
@@ -52,11 +63,26 @@ const BannerManagement = () => {
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: '',
       image_url: '',
       link_url: '',
+      category_id: '',
       is_active: true,
       order_position: banners.length
     });
@@ -69,6 +95,7 @@ const BannerManagement = () => {
       title: banner.title,
       image_url: banner.image_url,
       link_url: banner.link_url || '',
+      category_id: banner.category_id || '',
       is_active: banner.is_active,
       order_position: banner.order_position
     });
@@ -84,6 +111,7 @@ const BannerManagement = () => {
         title: formData.title,
         image_url: formData.image_url,
         link_url: formData.link_url || null,
+        category_id: formData.category_id || null,
         is_active: formData.is_active,
         order_position: formData.order_position
       };
@@ -216,6 +244,23 @@ const BannerManagement = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, link_url: e.target.value }))}
                     placeholder="https://exemplo.com/promocao"
                   />
+                </div>
+
+                <div>
+                  <Label htmlFor="category_id">Categoria (opcional)</Label>
+                  <Select value={formData.category_id} onValueChange={(value) => setFormData(prev => ({ ...prev, category_id: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Nenhuma categoria</SelectItem>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div>
